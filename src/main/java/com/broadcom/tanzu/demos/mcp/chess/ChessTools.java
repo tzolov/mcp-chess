@@ -16,6 +16,11 @@
 
 package com.broadcom.tanzu.demos.mcp.chess;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Base64;
+
+import com.github.alexandreroman.chessimage.ChessRenderer;
 import io.github.wolfraam.chessgame.ChessGame;
 import io.github.wolfraam.chessgame.notation.NotationType;
 import org.slf4j.Logger;
@@ -53,11 +58,29 @@ class ChessTools {
             The move is defined in UCI format (for instance: d2d3).
             """)
     boolean isLegalMove(@ToolParam(description = "Board state in Forsyth-Edwards Notation") String fen,
-                        @ToolParam(description = "Move in UCI format") String move) {
+            @ToolParam(description = "Move in UCI format") String move) {
         logger.atDebug().log("Checking if the move {} is legal in FEN: {}", move, fen);
         final var game = new ChessGame(fen);
         final var resp = game.isLegalMove(game.getMove(NotationType.UCI, move));
         logger.atInfo().log("Is move {} legal in FEN {}? {}", move, fen, resp ? "yes" : "no");
         return resp;
+    }
+
+    @Tool(name = "chess_generate_board_image", description = """
+            Generate a board image in a chess game from a Forsyth-Edwards Notation (FEN).
+            Returns a base64-encoded PNG image.
+            """)
+    public String chessGenerateBoardImage(
+            @ToolParam(description = "Board state in Forsyth-Edwards Notation") String fen) {
+        logger.atInfo().log("Rendering board to PNG image: {}", fen);
+        final var out = new ByteArrayOutputStream(1024 * 4);
+        try {
+            new ChessRenderer().render(fen, out);
+            logger.atInfo().log("Encoding PNG board image to base64: {}", fen);
+            final var imgB64 = Base64.getEncoder().encodeToString(out.toByteArray());
+            return imgB64;
+        } catch (IOException e) {
+            return "error";
+        }
     }
 }

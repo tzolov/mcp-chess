@@ -61,6 +61,19 @@ Here's an example for the MCP server configuration:
 }
 ```
 
+alternatively you can run it from the Boot java jar like this:
+
+```json
+{
+  "mcp-chess": {
+    "command": "java",
+    "args": [
+      "-jar",
+      "/path/to//mcp-chess-1.1.0-SNAPSHOT.jar"
+    ]
+  }
+}
+```
 ## Using with Claude
 
 Once properly configured, you can ask Claude to perform various chess-related tasks:
